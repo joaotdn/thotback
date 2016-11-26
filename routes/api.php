@@ -49,6 +49,8 @@ $api->version('v1',['middleware' => 'api.auth'], function ($api) {
 
     $api->post('novo/professor','App\Http\Controllers\Auth\TeacherController@store');
 
+    $api->get('professor/{professor_id}/bancas','App\Http\Controllers\Auth\TeacherController@listaProfessorBanca');
+
     /**
      * Bancas
      */
@@ -60,11 +62,17 @@ $api->version('v1',['middleware' => 'api.auth'], function ($api) {
 
     $api->get('projetos/{projeto_id}','App\Http\Controllers\Auth\ProjetoController@show');
 
+    $api->post('projetos/salvar','App\Http\Controllers\Auth\ProjetoController@salvarBanca');
+
+    $api->post('projetos/alterar_examinador','App\Http\Controllers\Auth\ProjetoController@alterBancaExaminador');
+
 
     /**
      * cursos
      */
     $api->post('novo/curso','App\Http\Controllers\Auth\CursoController@store');
+
+    $api->get('curso/{id}','App\Http\Controllers\Auth\CursoController@show');
 
     $api->get('cursos','App\Http\Controllers\Auth\CursoController@index');
 

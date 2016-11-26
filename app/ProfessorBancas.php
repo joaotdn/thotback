@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class ProfessorDatas extends Model
+class ProfessorBancas extends Model
 {
     public $timestamps = false;
     protected $fillable = [  'professor_id', 'datas_disponiveis' ];

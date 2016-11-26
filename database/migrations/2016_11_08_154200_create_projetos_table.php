@@ -21,9 +21,14 @@ class CreateProjetosTable extends Migration
             $table->integer('curso_id');
             $table->string('area_primaria');
             $table->string('area_secundaria');
+            $table->text('resumo');
             $table->date('data');
             $table->dateTime('hora')->unique();
             $table->string('sala');
+
+            $table->integer('examinador_1')->nullable();
+            $table->integer('examinador_2')->nullable();
+
             $table->timestamps();
         });
     }

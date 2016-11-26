@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\ProfessorBancas;
 use App\Projeto;
 use App\User;
 use Illuminate\Http\Request;
@@ -40,7 +41,8 @@ class ProjetoController extends Controller
             'area_secundaria' => 'required',
             'data' => 'required|date_format:d/m/Y',
             'hora' => 'required|unique:projetos|date_format:H:i',
-            'sala' => 'required'
+            'sala' => 'required',
+            'resumo' => 'required'
         ]);
 
         /**
@@ -73,6 +75,7 @@ class ProjetoController extends Controller
             $projeto->data = Carbon::createFromFormat('d/m/Y', $input['data']);
             $projeto->hora = Carbon::createFromFormat('H:i', $input['hora']);
             $projeto->sala = $input['sala'];
+            $projeto->resumo = $input['resumo'];
 
             if($projeto->save()) {
                 $message = [
@@ -162,6 +165,81 @@ class ProjetoController extends Controller
         ];
 
         return response()->json($response, 404);
+    }
+
+    public function salvarBanca(Request $request) {
+
+        $inputs = Input::all();
+        $professor = User::find($inputs['usuario']);
+
+        if($professor) {
+            $bancas_escolhidas = array();
+            $i = 0;
+
+            foreach ($inputs['bancas'] as $banca) {
+                $projeto = Projeto::where('id',$banca)->firstOrFail();
+                $professor_banca = new ProfessorBancas();
+
+                if ( $projeto->examinador_1 == null ) {
+
+                    $projeto->examinador_1 = $inputs['usuario'];
+                    $bancas_escolhidas[$i] = $projeto;
+                    $i++;
+
+                    $projeto->update();
+
+                    $professor_banca->professor_id = $professor->id;
+                    $professor_banca->banca = $banca;
+                    $professor_banca->save();
+
+                    continue;
+                }
+
+                if ( $projeto->examinador_2 == null ) {
+
+                    $projeto->examinador_2 = $inputs['usuario'];
+                    $bancas_escolhidas[$i] = $projeto;
+                    $i++;
+
+                    $projeto->update();
+
+                    $professor_banca->professor_id = $professor->id;
+                    $professor_banca->banca = $banca;
+                    $professor_banca->save();
+
+                    continue;
+                }
+
+                $response = [
+                    'msg' => 'Não foi possível salvar você em ' . $projeto->nome,
+                    'class' => 'alert alert-dismissible alert-danger'
+                ];
+
+                return response()->json($response, 201);
+            }
+
+            return response()->json($bancas_escolhidas, 201);
+        }
+    }
+
+    /**
+     * O Moderador seleciona examinadores para a banca
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function alterBancaExaminador(Request $request) {
+        $input = Input::all();
+        $projeto = Projeto::where('id',$input['projeto'])->first();
+
+        if($input['pos'] == 'ex_1')
+            $projeto->examinador_1 = $input['examinador'];
+        else
+            $projeto->examinador_2 = $input['examinador'];
+
+        if($projeto->update())
+            return response()->json($projeto, 201);
+        else
+            return response()->json(['msg' => 'Não foi possível salvar o examinador'], 201);
     }
 
     /**

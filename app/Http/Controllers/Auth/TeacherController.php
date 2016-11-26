@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\ProfessorBancas;
 use App\ProfessorDatas;
 use App\Projeto;
 use App\Teacher;
@@ -26,7 +27,7 @@ class TeacherController extends Controller
      */
     public function index()
     {
-        return User::all();
+        return User::with('teachers')->where('name','!=','Administrador')->get();
     }
 
     /**
@@ -183,18 +184,22 @@ class TeacherController extends Controller
 
     /**
      * Lista os projetos com areas de interesse semelhantes
-     * ao dos professores
+     * ao do professor pelo id dele
      * @param $user_id id do professor
      */
     public function getProjetosProfessor($user_id)
     {
-        $usuario = User::find($user_id);
+        // $usuario = User::find($user_id);
         $professor = Teacher::where('teacherable_id',$user_id)->firstOrFail();
 
         $area1 = $professor->area_primaria;
         $area2 = $professor->area_secundaria;
 
-        $projetos = Projeto::all();
+        // lista projetos em que pelo menos um examinador está nulo
+        $projetos = Projeto::where('examinador_1',null)
+                             ->orWhere('examinador_2',null)
+                             ->get();
+
         $projetosAreas = array();
 
         foreach ($projetos as $projeto) {
@@ -252,22 +257,28 @@ class TeacherController extends Controller
      */
     public function verificaProfessorAlocado($id)
     {
-        $datas_disponiveis = ProfessorDatas::where('professor_id',$id)->first();
+        $professor_banca = ProfessorBancas::where('professor_id',$id)->first();
 
-        if($datas_disponiveis) {
+        if( $professor_banca ) {
             $message = [
-                'msg' => 'checked',
-                'datas' => $datas_disponiveis
-            ];
-
-            return response()->json($message, 201);
-        } else {
-            $message = [
-                'msg' => 'unchecked'
+                'msg' => 'checked'
             ];
 
             return response()->json($message, 201);
         }
+
+        $message = [
+            'msg' => 'unchecked'
+        ];
+
+        return response()->json($message, 201);
+    }
+
+    public function listaProfessorBanca($professor_id) {
+
+        $bancas = ProfessorBancas::where('professor_id',$professor_id)->get();
+        return $bancas;
+
     }
 
     /**

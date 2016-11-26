@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateProfessorDatasTable extends Migration
+class CreateTableProfessorBancas extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,10 @@ class CreateProfessorDatasTable extends Migration
      */
     public function up()
     {
-        Schema::create('professor_datas', function (Blueprint $table) {
+        Schema::create('professor_bancas', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('professor_id')->unique();
-            $table->json('datas_disponiveis');
+            $table->integer('professor_id');
+            $table->integer('banca');
         });
     }
 
@@ -27,6 +27,6 @@ class CreateProfessorDatasTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('professor_datas');
+        Schema::dropIfExists('professor_bancas');
     }
 }

@@ -77,6 +77,25 @@ class CursoController extends Controller
     }
 
     /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        $curso = Curso::where('id',$id)->firstOrFail();
+
+        $message = [
+            'msg' => 'Curso encontrado',
+            'curso' => $curso->nome,
+            'curso_id' => $curso->id
+        ];
+
+        return response()->json($message, 201);
+    }
+
+    /**
      * Remove the specified resource from storage.
      *
      * @param  int  $id
